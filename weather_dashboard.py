@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 st.set_page_config(layout="wide")
-st.title("🌦 Weather Monitoring")
+st.title(text-align:center"🌦 Weather Monitoring")
 
 # ----------------------------
 # 1️⃣ Train Model Once
@@ -77,4 +77,5 @@ for i in range(100):   # 100 fast updates
         st.dataframe(st.session_state.live_data.tail(10), use_container_width=True)
 
     time.sleep(0.5)   # Faster updates (0.5 seconds)
+
 
