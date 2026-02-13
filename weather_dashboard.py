@@ -33,7 +33,7 @@ st.sidebar.success(f"Model Accuracy: {round(accuracy*100,2)}%")
 # ---------------------------
 # 3️⃣ User Input Section
 # ---------------------------
-st.subheader("Enter Current Weather Parameters")
+st.subheader("change the  Weather Parameters to predict rainfall")
 
 temp = st.slider("Temperature (°C)", 0, 50, 30)
 humidity = st.slider("Humidity (%)", 0, 100, 70)
@@ -54,4 +54,5 @@ if st.button("Predict Weather"):
     else:
 
         st.success("☀ No Rain Expected")
+
 
