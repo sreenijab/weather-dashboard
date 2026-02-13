@@ -1,58 +1,79 @@
 import streamlit as st
 import pandas as pd
-import joblib
-from sklearn.model_selection import train_test_split
+import numpy as np
+import time
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
-st.title("🌦 Rain Prediction Dashboard")
+st.set_page_config(layout="wide")
+st.title("🌦 Live Dynamic Weather Monitoring")
 
-# ---------------------------
-# 1️⃣ Load Dataset
-# ---------------------------
-data = pd.read_csv("weather.csv")
+# ----------------------------
+# 1️⃣ Train Model Once
+# ----------------------------
+np.random.seed(42)
+data_size = 1000
 
-X = data[['Temp', 'Humidity', 'Pressure']]
-y = data['Rain']
+temp = np.random.normal(30, 5, data_size)
+humidity = np.random.normal(70, 15, data_size)
+pressure = np.random.normal(1005, 7, data_size)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+rain = []
+for i in range(data_size):
+    if humidity[i] > 75 and pressure[i] < 1005:
+        rain.append(1)
+    else:
+        rain.append(0)
 
-# ---------------------------
-# 2️⃣ Train Model
-# ---------------------------
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+df = pd.DataFrame({
+    "Temp": temp,
+    "Humidity": humidity,
+    "Pressure": pressure,
+    "Rain": rain
+})
+
+X = df[['Temp', 'Humidity', 'Pressure']]
+y = df['Rain']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = RandomForestClassifier(n_estimators=100)
 model.fit(X_train, y_train)
 
-y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
+# ----------------------------
+# 2️⃣ Live Simulation Section
+# ----------------------------
 
-st.sidebar.success(f"Model Accuracy: {round(accuracy*100,2)}%")
+if "live_data" not in st.session_state:
+    st.session_state.live_data = pd.DataFrame(
+        columns=["Temperature", "Humidity", "Pressure", "Rain Prediction"]
+    )
 
-# ---------------------------
-# 3️⃣ User Input Section
-# ---------------------------
-st.subheader("change the  Weather Parameters to predict rainfall")
+placeholder = st.empty()
 
-temp = st.slider("Temperature (°C)", 0, 50, 30)
-humidity = st.slider("Humidity (%)", 0, 100, 70)
-pressure = st.slider("Pressure (hPa)", 950, 1050, 1005)
+for i in range(100):   # 100 fast updates
+    
+    new_temp = round(np.random.normal(30, 5), 2)
+    new_humidity = round(np.random.normal(70, 15), 2)
+    new_pressure = round(np.random.normal(1005, 7), 2)
 
-# ---------------------------
-# 4️⃣ Prediction
-# ---------------------------
-if st.button("Predict Weather"):
+    input_data = pd.DataFrame([[new_temp, new_humidity, new_pressure]],
+                              columns=["Temp", "Humidity", "Pressure"])
 
-    input_data = pd.DataFrame([[temp, humidity, pressure]],
-                              columns=['Temp', 'Humidity', 'Pressure'])
+    prediction = model.predict(input_data)[0]
 
-    prediction = model.predict(input_data)
+    rain_status = "Rain Expected 🌧" if prediction == 1 else "No Rain ☀"
 
-    if prediction[0] == 1:
-        st.error("🌧 Rain Expected")
-    else:
+    new_row = pd.DataFrame([[new_temp, new_humidity, new_pressure, rain_status]],
+                           columns=["Temperature", "Humidity", "Pressure", "Rain Prediction"])
 
-        st.success("☀ No Rain Expected")
+    st.session_state.live_data = pd.concat(
+        [st.session_state.live_data, new_row], ignore_index=True
+    )
 
+    with placeholder.container():
+        st.subheader("📊 Live Weather Values")
 
+        st.dataframe(st.session_state.live_data.tail(10), use_container_width=True)
+
+    time.sleep(0.5)   # Faster updates (0.5 seconds)
