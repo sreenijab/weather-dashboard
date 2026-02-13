@@ -1,4 +1,3 @@
-!pip install streamlit
 import streamlit as st
 import pandas as pd
 import joblib
@@ -53,4 +52,5 @@ if st.button("Predict Weather"):
     if prediction[0] == 1:
         st.error("🌧 Rain Expected")
     else:
+
         st.success("☀ No Rain Expected")
