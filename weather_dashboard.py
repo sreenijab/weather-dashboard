@@ -7,7 +7,6 @@ from sklearn.model_selection import train_test_split
 
 st.set_page_config(layout="wide")
 st.title("🌦 Weather Monitoring")
-<title style="text-align:center">
 
 # ----------------------------
 # 1️⃣ Train Model Once
@@ -73,11 +72,12 @@ for i in range(100):   # 100 fast updates
     )
 
     with placeholder.container():
-        st.subheader("📊 Live Weather Values")
+        st.subheader("Weather Parameters")
 
         st.dataframe(st.session_state.live_data.tail(10), use_container_width=True)
 
     time.sleep(0.5)   # Faster updates (0.5 seconds)
+
 
 
 
